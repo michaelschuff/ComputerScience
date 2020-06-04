@@ -8,16 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		4C99502B2488772700B38653 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C99502A2488772700B38653 /* main.cpp */; };
-		4C99505224887A3100B38653 /* Vector2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C99503A248877EC00B38653 /* Vector2D.cpp */; };
-		4C99505324887A3100B38653 /* SplinePoint2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C99503D248877FE00B38653 /* SplinePoint2D.cpp */; };
-		4C99505424887A3100B38653 /* Spline2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C9950402488781200B38653 /* Spline2D.cpp */; };
-		4C99505524887A3100B38653 /* Hamiltonian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C99504F2488794C00B38653 /* Hamiltonian.cpp */; };
-		4C99505624887A3100B38653 /* MathFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C9950432488781F00B38653 /* MathFunctions.cpp */; };
 		4C99505724887A3100B38653 /* Vector2D.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C99503B248877EC00B38653 /* Vector2D.hpp */; };
 		4C99505824887A3100B38653 /* SplinePoint2D.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C99503E248877FE00B38653 /* SplinePoint2D.hpp */; };
 		4C99505924887A3100B38653 /* Spline2D.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C9950412488781200B38653 /* Spline2D.hpp */; };
 		4C99505A24887A3100B38653 /* Hamiltonian.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C9950502488794C00B38653 /* Hamiltonian.hpp */; };
 		4C99505B24887A3100B38653 /* MathFunctions.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C9950442488781F00B38653 /* MathFunctions.hpp */; };
+		4C99505C24888F0700B38653 /* Vector2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C99503A248877EC00B38653 /* Vector2D.cpp */; };
+		4C99505D24888F0700B38653 /* SplinePoint2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C99503D248877FE00B38653 /* SplinePoint2D.cpp */; };
+		4C99505E24888F0700B38653 /* Spline2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C9950402488781200B38653 /* Spline2D.cpp */; };
+		4C99505F24888F0700B38653 /* Hamiltonian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C99504F2488794C00B38653 /* Hamiltonian.cpp */; };
+		4C99506024888F0700B38653 /* MathFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C9950432488781F00B38653 /* MathFunctions.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -190,11 +190,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4C99505224887A3100B38653 /* Vector2D.cpp in Sources */,
-				4C99505324887A3100B38653 /* SplinePoint2D.cpp in Sources */,
-				4C99505424887A3100B38653 /* Spline2D.cpp in Sources */,
-				4C99505524887A3100B38653 /* Hamiltonian.cpp in Sources */,
-				4C99505624887A3100B38653 /* MathFunctions.cpp in Sources */,
+				4C99505C24888F0700B38653 /* Vector2D.cpp in Sources */,
+				4C99505D24888F0700B38653 /* SplinePoint2D.cpp in Sources */,
+				4C99505E24888F0700B38653 /* Spline2D.cpp in Sources */,
+				4C99505F24888F0700B38653 /* Hamiltonian.cpp in Sources */,
+				4C99506024888F0700B38653 /* MathFunctions.cpp in Sources */,
 				4C99505724887A3100B38653 /* Vector2D.hpp in Sources */,
 				4C99505824887A3100B38653 /* SplinePoint2D.hpp in Sources */,
 				4C99505924887A3100B38653 /* Spline2D.hpp in Sources */,
@@ -217,6 +217,7 @@
 					/Library/Frameworks/,
 					"$(inherited)",
 				);
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/,
@@ -261,6 +262,7 @@
 					/Library/Frameworks/,
 					"$(inherited)",
 				);
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/,

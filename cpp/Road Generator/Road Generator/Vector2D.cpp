@@ -32,6 +32,15 @@ void Vector2D::rotate(double angle) {
     this->updateCartesian();
 }
 
+Vector2D Vector2D::unit() {
+    return Vector2D((double) theta, (double) 1);
+}
+
+void Vector2D::toUnit() {
+    this->magnitude = 1;
+    updateCartesian();
+}
+
 void Vector2D::operator+=(Vector2D& other) {
     this->x += other.x;
     this->y += other.y;

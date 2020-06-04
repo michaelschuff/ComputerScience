@@ -24,6 +24,8 @@ public:
     
     Vector2D rotated(double angle);
     void rotate(double angle);
+    Vector2D unit();
+    void toUnit();
     
     Vector2D operator-();
     void operator+=(Vector2D&);

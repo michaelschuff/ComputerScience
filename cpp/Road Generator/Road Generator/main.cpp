@@ -44,14 +44,35 @@ int main() {
     int splinePointIndex = -1, controlPointIndex = -1;
     
     vector<double> multipliers = {1, 5};
+    double derivativeScalar = 50;
     
     
     vector<vector<Vector2D>> pointLocations = GeneratePoints(rows, columns, width, height, randomness);
     vector<vector<Vector2D>> path = Hamiltonian::ManhattanCycleDiagonal(rows, columns);
     
     
-    
     vector<SplinePoint2D> controlPoints;
+    vector<Vector2D> pathLocations;
+    vector<Vector2D> pointDirections;
+    
+    Vector2D pathIndex(0, 0);
+    do {
+        pathLocations.push_back(pointLocations[pathIndex.y][pathIndex.x]);
+        pathIndex -= path[pathIndex.y][pathIndex.x];
+    } while (pathIndex.magnitude != 0);
+    
+    for (int i = 0; i < pathLocations.size(); i++) {
+        Vector2D right(pathLocations[(i + 1) % pathLocations.size()] - pathLocations[i]);
+        Vector2D left(pathLocations[(i - 1 + pathLocations.size()) % pathLocations.size()] - pathLocations[i]);
+        Vector2D n(right - left);
+        n.toUnit();
+        pointDirections.push_back(n * derivativeScalar);
+    }
+    
+    for (int i = 0; i < rows * columns; i++) {
+        controlPoints.push_back(SplinePoint2D(vector<Vector2D> {pathLocations[i], pointDirections[i]}, multipliers));
+    }
+    
     
     Spline2D spline(controlPoints, true);
     
@@ -127,7 +148,7 @@ void DrawSpline(RenderWindow &window, Spline2D spline, double controlPointRadius
         double x = spline.controlPoints[i].GetX(0), y = spline.controlPoints[i].GetY(0);
         for (int j = 0; j < spline.controlPoints[i].controlPoints.size() - 1; j++) {
             CircleShape p(controlPointRadius);
-            p.setOrigin(controlPointRadius / 2, controlPointRadius / 2);
+            p.setOrigin(controlPointRadius, controlPointRadius);
             p.setFillColor(controlPointColors[j % controlPointColors.size()]);
             p.setPosition(x, y);
             window.draw(Line(x, y, x+spline.controlPoints[i].GetX(j+1), y+spline.controlPoints[i].GetY(j+1), Color(100, 100, 100)));
@@ -137,7 +158,7 @@ void DrawSpline(RenderWindow &window, Spline2D spline, double controlPointRadius
             
         }
         CircleShape p(controlPointRadius);
-        p.setOrigin(controlPointRadius / 2, controlPointRadius / 2);
+        p.setOrigin(controlPointRadius, controlPointRadius);
         p.setFillColor(controlPointColors[spline.controlPoints[i].controlPoints.size() % controlPointColors.size()]);
         p.setPosition(x, y);
         window.draw(p);
@@ -170,17 +191,15 @@ double degrees(double rad) {
 vector<vector<Vector2D>> GeneratePoints(int rows, int columns, int width, int height, double randomness) {
     double pxlPerRow = (double) height / rows;
     double pxlPerColumn = (double) width / columns;
-    double maxRandomnessY = randomness * pxlPerRow;
-    double maxRandomnessX = randomness * pxlPerColumn;
+    double rX = randomness * pxlPerColumn / 2;
+    double rY = randomness * pxlPerRow / 2;
     
     vector<vector<Vector2D>> points;
     
     for (double y = 0.5; y < rows; y++) {
-        points.push_back(vector<Vector2D> {});
+        points.push_back(vector<Vector2D>());
         for (double x = 0.5; x < columns; x++) {
-            double dx = RandomRange(-maxRandomnessX, maxRandomnessX);
-            double dy = RandomRange(-maxRandomnessY, maxRandomnessY);
-            points[(int) y].push_back(Vector2D((int) x * pxlPerColumn + dx, (int) x * pxlPerColumn + dy));
+            points[(int) y].push_back(Vector2D((int) (x * pxlPerColumn + RandomRange(-rX, rX)), (int) (y * pxlPerRow + RandomRange(-rY, rY))));
         }
     }
     
