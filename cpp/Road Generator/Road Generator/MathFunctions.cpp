@@ -56,6 +56,6 @@ double RandomRange(double lower, double upper) {
 }
 
 int RandomRange(int lower, int upper) {
-    return round((upper - lower) * ((double) rand() / RAND_MAX) + lower);
+    return (rand() % (upper - lower)) + lower;
 }
 }

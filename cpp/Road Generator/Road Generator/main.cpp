@@ -21,64 +21,134 @@ using namespace std;
 using namespace sf;
 using namespace MathFunctions;
 
+struct circle {
+    double x, y, r;
+};
+
+
 double degrees(double);
 double radians(double);
 RectangleShape VectorLine(Vector2D, Vector2D);
 RectangleShape Line(double, double, double, double, Color);
 void DrawSpline(RenderWindow&, Spline2D, double);
 vector<vector<Vector2D>> GeneratePoints(int, int, int, int, double);
+vector<Vector2D> GenerateDerivatives(vector<Vector2D>);
+circle CircleFromPoints(Vector2D, Vector2D, Vector2D);
+void drawCircle(circle, RenderWindow&);
+bool InTriangle(Vector2D, Vector2D, Vector2D, Vector2D);
+
 
 int main() {
+    int cIndex = 0;
     int width = 800;
     int height = 800;
-    
+    bool reverse = false;
+
     enum State {leftDown, rightDown, up};
     State mouseState = up;
-    
+
     srand(time(NULL));
-    int rows = RandomRange((int) 3, (int)  5);
-    int columns = RandomRange((int) 3, (int) 5);
+    int rows = RandomRange((int) 2, (int)  5);
+    int columns = RandomRange((int) 2, (int) 5);
+//    int rows = 5;
+//    int columns = 5;
     double randomness = 0.5;
-    
+
     double mx, my, controlPointRadius = 5;
     int splinePointIndex = -1, controlPointIndex = -1;
-    
+
     vector<double> multipliers = {1, 5};
     double derivativeScalar = 50;
-    
-    
+
+
     vector<vector<Vector2D>> pointLocations = GeneratePoints(rows, columns, width, height, randomness);
     vector<vector<Vector2D>> path = Hamiltonian::ManhattanCycleDiagonal(rows, columns);
-    
-    
+    if (path[0][0].y != 0) {
+        reverse = true;
+    }
+
+
     vector<SplinePoint2D> controlPoints;
     vector<Vector2D> pathLocations;
     vector<Vector2D> pointDirections;
-    
+
     Vector2D pathIndex(0, 0);
-    do {
+    for (int i = 0; i < rows * columns; i++) {
         pathLocations.push_back(pointLocations[pathIndex.y][pathIndex.x]);
         pathIndex -= path[pathIndex.y][pathIndex.x];
-    } while (pathIndex.magnitude != 0);
-    
-    for (int i = 0; i < pathLocations.size(); i++) {
-        Vector2D right(pathLocations[(i + 1) % pathLocations.size()] - pathLocations[i]);
-        Vector2D left(pathLocations[(i - 1 + pathLocations.size()) % pathLocations.size()] - pathLocations[i]);
-        Vector2D n(right - left);
-        n.toUnit();
-        pointDirections.push_back(n * derivativeScalar);
     }
-    
+
+
+    vector<vector<Vector2D>> circleDerivs;
+    for (int i = 0; i < pathLocations.size(); i++) {
+        circleDerivs.push_back(vector<Vector2D>());
+        circleDerivs[i].push_back(Vector2D(0, 0));
+        circleDerivs[i].push_back(Vector2D(0, 0));
+        circleDerivs[i].push_back(Vector2D(0, 0));
+    }
+    vector<circle> circs;
+    for (int i = 0; i < pathLocations.size(); i++) {
+        int rIndex = (i + 1) % pathLocations.size(), lIndex = (i - 1 + pathLocations.size()) % pathLocations.size();
+        Vector2D right(pathLocations[rIndex]);
+        Vector2D left(pathLocations[lIndex]);
+        
+        circle s = CircleFromPoints(left, pathLocations[i], right);
+        circs.push_back(s);
+//        s.r = 50;
+//        Vector2D temp3((double) atan2((pathLocations[i].y - s.y), (pathLocations[i].x-s.x)) - radians(90), (double) s.r);
+//        Vector2D temp4((double) atan2((pathLocations[i].y - s.y), (pathLocations[i].x-s.x)) + radians(90), (double) s.r);
+//        Vector2D temp5((float) (pathLocations[i].x - right.x), (float) (pathLocations[i].y - right.y));
+//        temp5.magnitude = 50;
+//        temp5.updateCartesian();
+//
+//
+//        Vector2D temp1(right - left);
+//        temp1.magnitude = 50;
+//        temp1.updateCartesian();
+//        right.toUnit();
+//        left.toUnit();
+        Vector2D temp2(right - left);
+        temp2.magnitude = 50;
+        temp2.updateCartesian();
+        
+//        Vector2D fin1((int) temp2.x + temp3.x, temp2.y+temp3.y);
+//        Vector2D fin2((int) temp2.x + temp4.x, temp2.y+temp4.y);
+//        if (temp5.x*fin1.x + temp5.y*fin1.y < temp5.x*fin2.x + temp5.y*fin2.y) {
+//            pointDirections.push_back(fin1);
+//        } else {
+//            pointDirections.push_back(fin2);
+//        }
+        pointDirections.push_back(temp2);
+        
+        
+    }
+
+//    for (int i = 0; i < circleDerivs.size(); i++) {
+//        Vector2D avg((int) 0, (int) 0);
+//        double mag = 0;
+//        for (int j = 0; j < circleDerivs[i].size(); j++) {
+//            avg.x += circleDerivs[i][j].x;
+//            avg.y += circleDerivs[i][j].y;
+//            mag += circleDerivs[i][j].magnitude;
+//        }
+//        mag /= circleDerivs[i].size();
+//        avg.theta = atan2(avg.y, avg.x);
+//        avg.x = mag * cos(avg.theta);
+//        avg.y = mag * sin(avg.theta);
+//        pointDirections.push_back(avg);
+//    }
+
     for (int i = 0; i < rows * columns; i++) {
         controlPoints.push_back(SplinePoint2D(vector<Vector2D> {pathLocations[i], pointDirections[i]}, multipliers));
     }
-    
-    
+
+
     Spline2D spline(controlPoints, true);
-    
-    
-    
-    
+    if (reverse) {
+        spline.Reverse();
+    }
+
+
     RenderWindow window(VideoMode(width, height), "Road Generator");
     while (window.isOpen()) {
         Event event;
@@ -87,10 +157,12 @@ int main() {
                 window.close();
             } else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape) {
                window.close();
+            } else if (event.type == Event:: KeyReleased && event.key.code == Keyboard::Space) {
+                cIndex = (cIndex+1) % circs.size();
             }
 
         }
-        
+
         if (Mouse::isButtonPressed(Mouse::Left)) {
             mouseState = leftDown;
         } else if (Mouse::isButtonPressed(Mouse::Right)) {
@@ -98,7 +170,7 @@ int main() {
         } else {
             mouseState = up;
         }
-        
+
         if (mouseState != up) {
             mx = Mouse::getPosition(window).x;
             my = Mouse::getPosition(window).y;
@@ -129,7 +201,23 @@ int main() {
             controlPointIndex = -1;
         }
         window.clear();
+        drawCircle(circs[cIndex], window);
         DrawSpline(window, spline, controlPointRadius);
+        for (int i = 0; i < circleDerivs.size(); i++) {
+            for (int j = 0; j < 3; j++) {
+//                CircleShape a(3);
+//
+//                a.setPosition(pathLocations[i].x + circleDerivs[i][j].x, pathLocations[i].y + circleDerivs[i][j].y);
+//                a.setOrigin(a.getRadius(), a.getRadius());
+//                if ((i == cIndex && j == 0) || ((cIndex - 1 + circleDerivs.size())%circleDerivs.size() == i && j == 1) || ((cIndex + 1)%circleDerivs.size() == i && j == 2)) {
+//                    a.setFillColor(Color(255, 255, 0));
+//                    window.draw(Line(pathLocations[i].x, pathLocations[i].y, pathLocations[i].x + circleDerivs[i][j].x, pathLocations[i].y + circleDerivs[i][j].y, Color(150, 150, 0)));
+//                } else {
+//                    window.draw(Line(pathLocations[i].x, pathLocations[i].y, pathLocations[i].x + circleDerivs[i][j].x, pathLocations[i].y + circleDerivs[i][j].y, Color(0, 0, 100)));
+//                }
+//                window.draw(a);
+            }
+        }
         window.display();
     }
 }
@@ -143,7 +231,7 @@ void DrawSpline(RenderWindow &window, Spline2D spline, double controlPointRadius
         window.draw(VectorLine(last, current));
         last = current;
     }
-    
+
     for (int i = 0; i < spline.controlPoints.size(); i++) {
         double x = spline.controlPoints[i].GetX(0), y = spline.controlPoints[i].GetY(0);
         for (int j = 0; j < spline.controlPoints[i].controlPoints.size() - 1; j++) {
@@ -155,13 +243,33 @@ void DrawSpline(RenderWindow &window, Spline2D spline, double controlPointRadius
             window.draw(p);
             x += spline.controlPoints[i].GetX(j+1);
             y += spline.controlPoints[i].GetY(j+1);
-            
+
         }
         CircleShape p(controlPointRadius);
         p.setOrigin(controlPointRadius, controlPointRadius);
         p.setFillColor(controlPointColors[spline.controlPoints[i].controlPoints.size() % controlPointColors.size()]);
         p.setPosition(x, y);
         window.draw(p);
+    }
+}
+
+bool InTriangle(Vector2D a, Vector2D b, Vector2D c, Vector2D p) {
+    double a1 = area(a, b, c);
+    double a2 = area(p, a, b);
+    double a3 = area(p, b, c);
+    double a4 = area(p, a, c);
+    if (abs(a1 - a2 - a3 - a4) < 1) {
+        return true;
+    } else {
+        return false;
+    }
+    
+}
+
+void drawCircle(circle c, RenderWindow& window) {
+    double tInc = 0.01;
+    for (double t = 0; t < 2 * 3.142; t+=tInc) {
+        window.draw(Line(c.x + c.r*cos(t-tInc), c.y + c.r * sin(t-tInc), c.x + c.r*cos(t), c.y + c.r * sin(t), Color(100, 100, 100)));
     }
 }
 
@@ -204,4 +312,27 @@ vector<vector<Vector2D>> GeneratePoints(int rows, int columns, int width, int he
     }
     
     return points;
+}
+
+vector<Vector2D> GenerateDerivatives(vector<Vector2D> points) {
+    for (int i = 0; i < points.size(); i++) {
+        Vector2D right(points[(i + 1) % points.size()]);
+        Vector2D left(points[(i - 1 + points.size()) % points.size()]);
+    }
+}
+
+circle CircleFromPoints(Vector2D p1, Vector2D p2, Vector2D p3) {
+    vector<vector<double>> equationMatrix;
+    
+    equationMatrix.push_back(vector<double> {2 * (p2.x-p1.x), 2 * (p2.y-p1.y), (p2.x*p2.x + p2.y*p2.y) - (p1.x*p1.x + p1.y*p1.y)});
+    equationMatrix.push_back(vector<double> {2 * (p1.x-p3.x), 2 * (p1.y-p3.y), (p1.x*p1.x + p1.y*p1.y) - (p3.x*p3.x + p3.y*p3.y)});
+    
+    
+    vector<double> center = RREFOutput(ReducedRowEchelonForm(equationMatrix));
+    
+    circle c;
+    c.x = center[0];
+    c.y = center[1];
+    c.r = sqrt(pow(p1.x-c.x, 2) + pow(p1.y-c.y, 2));
+    return c;
 }

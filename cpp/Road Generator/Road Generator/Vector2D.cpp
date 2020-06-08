@@ -24,7 +24,7 @@ Vector2D::Vector2D(double theta, double magnitude) : theta(theta), magnitude(mag
 }
 
 Vector2D Vector2D::rotated(double angle) {
-    return Vector2D(theta + angle, magnitude);
+    return Vector2D((double) theta + angle, (double) magnitude);
 }
 
 void Vector2D::rotate(double angle) {
@@ -41,14 +41,29 @@ void Vector2D::toUnit() {
     updateCartesian();
 }
 
+double dot(Vector2D& v1, Vector2D& v2) {
+    return v1.x*v2.x+v1.y*v2.y;
+}
+
+double area(Vector2D& v1, Vector2D& v2, Vector2D& v3) {
+    return abs((v1.x*(v2.y-v3.y) + v2.x*(v3.y-v1.y) + v3.x*(v1.y-v2.y))/2.0);
+}
+
+
+double angleBetween(Vector2D& v1, Vector2D& v2) {
+    return acos(dot(v1, v2) / (v1.magnitude * v2.magnitude));
+}
+
 void Vector2D::operator+=(Vector2D& other) {
     this->x += other.x;
     this->y += other.y;
+    this->updatePolar();
 }
 
 void Vector2D::operator-=(Vector2D& other) {
     this->x -= other.x;
     this->y -= other.y;
+    this->updatePolar();
 }
 
 void Vector2D::operator*=(double& scalar) {

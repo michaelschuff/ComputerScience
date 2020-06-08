@@ -23,9 +23,11 @@ public:
     Spline2D(vector<SplinePoint2D>, bool);
     Vector2D Get(double);
     void SetControlPoints(vector<SplinePoint2D>);
+    void Reverse();
 private:
     int degree;
     bool continuous;
+    bool reversed;
     double length;
     vector<double> curveLengths;
     vector<vector<Vector2D>> coefficients;

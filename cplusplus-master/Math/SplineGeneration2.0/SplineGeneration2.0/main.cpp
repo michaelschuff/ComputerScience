@@ -34,17 +34,12 @@ int main() {
     vector<double> multipliers = {1, 5};
     
     vector<SplinePoint2D> controlPoints = {
-        SplinePoint2D(vector<vector<double>> {{200, 200}, {50, -50}}, multipliers),
-        SplinePoint2D(vector<vector<double>> {{400, 100}, {50, 0}}, multipliers),
-        SplinePoint2D(vector<vector<double>> {{600, 200}, {50, 50}}, multipliers),
-        SplinePoint2D(vector<vector<double>> {{700, 400}, {0, 50}}, multipliers),
-        SplinePoint2D(vector<vector<double>> {{600, 600}, {-50, 50}}, multipliers),
-        SplinePoint2D(vector<vector<double>> {{400, 700}, {-50, 0}}, multipliers),
-        SplinePoint2D(vector<vector<double>> {{200, 600}, {-50, -50}}, multipliers),
-        SplinePoint2D(vector<vector<double>> {{100, 400}, {0, -50}}, multipliers)
+        SplinePoint2D(vector<vector<double>> {{400, 200}, {50, -50}}, multipliers),
+        SplinePoint2D(vector<vector<double>> {{400, 400}, {50, 0}}, multipliers),
+        SplinePoint2D(vector<vector<double>> {{400, 600}, {50, 50}}, multipliers)
     };
     
-    Spline2D spline(controlPoints, true);
+    Spline2D spline(controlPoints, false);
 
     RenderWindow window(VideoMode(800, 800), "Splines!");
     while (window.isOpen()) {

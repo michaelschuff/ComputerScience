@@ -7,7 +7,6 @@
 //
 
 #include "SplinePoint2D.hpp"
-#include <iostream>
 
 SplinePoint2D::SplinePoint2D(vector<Vector2D> controls, vector<double> multipliers) : Vector2D((float) controls[0].x, (float) controls[0].y), multipliers(multipliers) {
     for (int i = 0; i < controls.size(); i++) {

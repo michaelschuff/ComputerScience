@@ -93,6 +93,9 @@ void Spline2D::Calculate(SplinePoint2D start, SplinePoint2D end) {
 }
 
 Vector2D Spline2D::Get(double p) {
+    if (reversed) {
+        p = 1 - p;
+    }
     double distanceAlongPath = p * length;
     for (int i = 0; i < curveLengths.size(); i++) {
         if (distanceAlongPath - curveLengths[i] > 0) {
@@ -119,4 +122,8 @@ void Spline2D::SetControlPoints(vector<SplinePoint2D> controls) {
     degree = 2 * controls[0].controlPoints.size() - 1;
     
     this->Update();
+}
+
+void Spline2D::Reverse() {
+    this->reversed = !this->reversed;
 }

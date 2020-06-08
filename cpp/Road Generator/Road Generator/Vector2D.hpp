@@ -33,7 +33,6 @@ public:
     void operator*=(double&);
     void operator/=(double&);
     
-private:
     void updateCartesian();
     void updatePolar();
 };
@@ -45,6 +44,12 @@ Vector2D operator-(Vector2D&, Vector2D&);
 Vector2D operator*(Vector2D&, double&);
 
 Vector2D operator/(Vector2D&, double&);
+
+double angleBetween(Vector2D&, Vector2D&);
+
+double dot(Vector2D&, Vector2D&);
+
+double area(Vector2D&, Vector2D&, Vector2D&);
 
 bool operator==(Vector2D&, Vector2D&);
 
