@@ -28,9 +28,9 @@ struct circle {
 
 double degrees(double);
 double radians(double);
-RectangleShape VectorLine(Vector2D, Vector2D);
+RectangleShape VectorLine(Vector2D, Vector2D, Color);
 RectangleShape Line(double, double, double, double, Color);
-void DrawSpline(RenderWindow&, Spline2D, double);
+void DrawSpline(RenderWindow&, Spline2D, double, Color);
 vector<vector<Vector2D>> GeneratePoints(int, int, int, int, double);
 vector<Vector2D> GenerateDerivatives(vector<Vector2D>);
 circle CircleFromPoints(Vector2D, Vector2D, Vector2D);
@@ -48,10 +48,8 @@ int main() {
     State mouseState = up;
 
     srand(time(NULL));
-    int rows = RandomRange((int) 2, (int)  5);
-    int columns = RandomRange((int) 2, (int) 5);
-//    int rows = 5;
-//    int columns = 5;
+    int rows = RandomRange((int) 2, (int)  4);
+    int columns = RandomRange((int) 2, (int) 4);
     double randomness = 0.5;
 
     double mx, my, controlPointRadius = 5;
@@ -94,7 +92,9 @@ int main() {
         
         circle s = CircleFromPoints(left, pathLocations[i], right);
         circs.push_back(s);
-//        s.r = 50;
+        right.toUnit();
+        left.toUnit();
+        s.r = 50;
 //        Vector2D temp3((double) atan2((pathLocations[i].y - s.y), (pathLocations[i].x-s.x)) - radians(90), (double) s.r);
 //        Vector2D temp4((double) atan2((pathLocations[i].y - s.y), (pathLocations[i].x-s.x)) + radians(90), (double) s.r);
 //        Vector2D temp5((float) (pathLocations[i].x - right.x), (float) (pathLocations[i].y - right.y));
@@ -122,7 +122,58 @@ int main() {
         
         
     }
-
+    
+    vector<vector<Vector2D>> outer;
+    vector<vector<Vector2D>> inner;
+    
+    
+    for (int i = 0; i < pointDirections.size(); i++) {
+        outer.push_back(vector<Vector2D>());
+        inner.push_back(vector<Vector2D>());
+        Vector2D temp(pointDirections[i]);
+        temp.magnitude = 50;
+        temp.rotate(radians(90));
+        temp = temp + pathLocations[i];
+        outer[i].push_back(temp);
+        
+        Vector2D temp2(pointDirections[i]);
+        temp2.rotate(radians(270));
+        temp2 = temp2 + pathLocations[i];
+        inner[i].push_back(temp2);
+    }
+    
+    for (int i = 0; i < inner.size(); i++) {
+        int rIndex = (i + 1) % inner.size(), lIndex = (i - 1 + inner.size()) % inner.size();
+        Vector2D right(inner[rIndex][0]);
+        Vector2D left(inner[lIndex][0]);
+        
+        right.toUnit();
+        left.toUnit();
+        Vector2D temp2(right - left);
+        temp2.magnitude = 50;
+        if (reverse) {
+            temp2.magnitude = 25;
+        }
+        temp2.updateCartesian();
+        inner[i].push_back(temp2);
+    }
+    for (int i = 0; i < outer.size(); i++) {
+        int rIndex = (i + 1) % outer.size(), lIndex = (i - 1 + outer.size()) % outer.size();
+        Vector2D right(outer[rIndex][0]);
+        Vector2D left(outer[lIndex][0]);
+        
+        right.toUnit();
+        left.toUnit();
+        Vector2D temp2(right - left);
+        temp2.magnitude = 25;
+        if (reverse) {
+            temp2.magnitude = 50;
+        }
+        temp2.updateCartesian();
+        outer[i].push_back(temp2);
+    }
+    
+    
 //    for (int i = 0; i < circleDerivs.size(); i++) {
 //        Vector2D avg((int) 0, (int) 0);
 //        double mag = 0;
@@ -137,14 +188,23 @@ int main() {
 //        avg.y = mag * sin(avg.theta);
 //        pointDirections.push_back(avg);
 //    }
+    
+    vector<SplinePoint2D> innerControlPoints;
+    vector<SplinePoint2D> outerControlPoints;
 
     for (int i = 0; i < rows * columns; i++) {
         controlPoints.push_back(SplinePoint2D(vector<Vector2D> {pathLocations[i], pointDirections[i]}, multipliers));
+        innerControlPoints.push_back(SplinePoint2D(vector<Vector2D> {inner[i][0], pointDirections[i]}, multipliers));
+        outerControlPoints.push_back(SplinePoint2D(vector<Vector2D> {outer[i][0], pointDirections[i]}, multipliers));
     }
 
-
+    Spline2D innerSpline(innerControlPoints, true);
+    Spline2D outerSpline(outerControlPoints, true);
     Spline2D spline(controlPoints, true);
+    
     if (reverse) {
+        innerSpline.Reverse();
+        outerSpline.Reverse();
         spline.Reverse();
     }
 
@@ -194,7 +254,6 @@ int main() {
                 } else if (mouseState == rightDown) {
                     controlPoints[splinePointIndex].SetPosition(mx, my, controlPointIndex);
                 }
-                spline.SetControlPoints(controlPoints);
             }
         } else {
             splinePointIndex = -1;
@@ -202,9 +261,11 @@ int main() {
         }
         window.clear();
         drawCircle(circs[cIndex], window);
-        DrawSpline(window, spline, controlPointRadius);
-        for (int i = 0; i < circleDerivs.size(); i++) {
-            for (int j = 0; j < 3; j++) {
+        DrawSpline(window, spline, controlPointRadius, Color(255, 255, 255));
+//        DrawSpline(window, innerSpline, controlPointRadius, Color(255, 255, 255));
+//        DrawSpline(window, outerSpline, controlPointRadius, Color(255, 255, 255));
+//        for (int i = 0; i < circleDerivs.size(); i++) {
+//            for (int j = 0; j < 3; j++) {
 //                CircleShape a(3);
 //
 //                a.setPosition(pathLocations[i].x + circleDerivs[i][j].x, pathLocations[i].y + circleDerivs[i][j].y);
@@ -216,19 +277,19 @@ int main() {
 //                    window.draw(Line(pathLocations[i].x, pathLocations[i].y, pathLocations[i].x + circleDerivs[i][j].x, pathLocations[i].y + circleDerivs[i][j].y, Color(0, 0, 100)));
 //                }
 //                window.draw(a);
-            }
-        }
+//            }
+//        }
         window.display();
     }
 }
 
-void DrawSpline(RenderWindow &window, Spline2D spline, double controlPointRadius = 5.0) {
+void DrawSpline(RenderWindow &window, Spline2D spline, double controlPointRadius = 5.0, Color color = Color(255, 255, 255)) {
     vector<Color> controlPointColors = {Color(255, 0, 0), Color(255, 255, 0), Color(0, 255, 0), Color(0, 255, 255), Color(0, 0, 255), Color(255, 0, 255)};
     Vector2D last = spline.Get(0), current(0, 0);
     double tInc = 0.001;
     for (double t = tInc; t < 1; t+=tInc) {
         current = spline.Get(t);
-        window.draw(VectorLine(last, current));
+        window.draw(VectorLine(last, current, color));
         last = current;
     }
 
@@ -273,8 +334,8 @@ void drawCircle(circle c, RenderWindow& window) {
     }
 }
 
-RectangleShape VectorLine(Vector2D v1, Vector2D v2) {
-    return Line(v1.x, v1.y, v2.x, v2.y, Color(255, 255, 255));
+RectangleShape VectorLine(Vector2D v1, Vector2D v2, Color color) {
+    return Line(v1.x, v1.y, v2.x, v2.y, color);
 }
 
 RectangleShape Line(double x1, double y1, double x2, double y2, Color color) {
