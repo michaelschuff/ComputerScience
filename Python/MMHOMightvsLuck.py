@@ -1,13 +1,13 @@
 from math import *
 
 def calcDmgScalar(might, luck):
-	arbitraryTroopDamage = 1
+
 	critChance = (0.0117*luck+4.2084) / 100
 	critMultiplier = 1 + (19.2918*log(luck+141.138)+19.9851) / 100
 
 	regDmgMultiplier = 1 + ((might / 18) / 100)
 
-	mightDamage = arbitraryTroopDamage * regDmgMultiplier
+	mightDamage = 1 * regDmgMultiplier
 
 
 	regDmgChance = 1 - critChance
@@ -34,7 +34,5 @@ def printOneToOneThresholdMinLuck():
 
 		might+=1
 	print(might)
-print(calcDmgScalar(2660+849+287*.8,1025+172+273*.8))
-print(calcDmgScalar(2660+1002+287*.8-287,1025+273*.8+273))
-print(calcDmgScalar(2660+849+287*.8-287,1025+172+273*.8+273))
-print(calcDmgScalar(2660+1002+287*.8,1025+273*.8))
+print(calcDmgScalar(4813+292, 1273))
+print(calcDmgScalar(4813, 1273+278))
